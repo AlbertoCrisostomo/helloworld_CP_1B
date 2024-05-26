@@ -8,14 +8,6 @@ pipeline {
             }
         }
         
-        stage('Build') {
-            steps {
-                echo 'Eyyyy, esto es Python. No hay que compilar!!!'
-                echo WORKSPACE
-                bat 'tree'
-            }
-        }
-
         stage('Test') {
             parallel {
                 stage('Unit') {
@@ -49,11 +41,29 @@ pipeline {
             }
         }
 
-        stage('Result') {
+        stage('Static') {
             steps {
-                junit 'result*.xml'
-                echo 'Finalizado con éxito!!!'
+                echo 'Aquí van las pruebas Static!!!'
             }
         }
+
+        stage('Security') {
+            steps {
+                echo 'Aquí van las pruebas Security!!!'
+            }
+        }
+
+        stage('Performance') {
+            steps {
+                echo 'Aquí van las pruebas Performance!!!'
+            }
+        }
+
+        stage('Coverage') {
+            steps {
+                echo 'Aquí van las pruebas Coverage!!!'
+            }
+        }
+
     }
 }
