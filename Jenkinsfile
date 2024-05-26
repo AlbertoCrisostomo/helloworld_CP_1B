@@ -62,6 +62,14 @@ pipeline {
         stage('Coverage') {
             steps {
                 echo 'Aquí van las pruebas Coverage!!!'
+                bat '''
+                    set PYTHONPATH=%WORKSPACE%
+                    coverage run --branch --source=app --omit=app\__init__.py,app\api.py -m pytest test\unit
+                    coverage xml
+                '''
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    cobertura coberturaReportFile: 'coverage.xml', onlyStable: false, failUnstable: false
+                }
             }
         }
 
