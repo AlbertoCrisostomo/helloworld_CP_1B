@@ -70,7 +70,7 @@ pipeline {
             steps {
                 echo 'Inicio de las pruebas Performance!!!'
                 bat '''
-                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t TestPlan01.jmx -f -l flask.jtl
+                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
                 '''
                 perfReport sourceDataFiles: 'flask.jtl'
             }
