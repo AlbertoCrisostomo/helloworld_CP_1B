@@ -25,6 +25,7 @@ pipeline {
                     echo "La hora actual en Unit es: ${currentTime}"
                 }
             }
+        }
         
         stage('Rest') {
             steps {
