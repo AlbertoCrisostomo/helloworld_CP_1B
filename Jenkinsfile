@@ -75,7 +75,7 @@ pipeline {
                 }
                 bat '''
                     set PYTHONPATH=%WORKSPACE%
-                    coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit2.xml test\\unit
+                    coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit.xml test\\unit
 
                     coverage xml
                 '''
