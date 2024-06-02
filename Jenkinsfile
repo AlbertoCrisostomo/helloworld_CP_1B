@@ -80,6 +80,8 @@ pipeline {
             steps {
                 echo 'Inicio de las pruebas Performance!!!'
                 bat '''
+                    set FLASK_APP=app\\api.py
+                    start flask run
                     C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
                 '''
                 perfReport sourceDataFiles: 'TestPlan01.jtl'
