@@ -119,7 +119,7 @@ pipeline {
                         echo 'Inicio de las pruebas Performance!!!'
                         bat '''
                             set FLASK_APP=app\\api.py
-                            set PATH=C:\\Python312;C:\\Python312\\Scripts;
+                            set PATH=C:\\Python312;C:\\Python312\\Scripts;C:\\Program Files\\Java\\jdk-11;C:\\Program Files\\Java\\jdk-11\\bin;
                             start flask run
                             C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
                         '''
