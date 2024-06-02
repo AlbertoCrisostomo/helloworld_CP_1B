@@ -18,7 +18,7 @@ pipeline {
                     coverage xml
                 '''
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    cobertura coberturaReportFile: 'coverage.xml', onlyStable: false, failUnstable: false, conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,80,90'
+                    cobertura coberturaReportFile: 'coverage.xml', onlyStable: false, failUnstable: false, conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95'
                 }
             }
         }
@@ -80,9 +80,9 @@ pipeline {
             steps {
                 echo 'Inicio de las pruebas Performance!!!'
                 bat '''
-                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
+                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
                 '''
-                perfReport sourceDataFiles: 'flask.jtl'
+                perfReport sourceDataFiles: 'TestPlan01.jtl'
             }
         }
         
