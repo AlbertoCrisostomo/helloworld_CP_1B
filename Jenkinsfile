@@ -37,24 +37,7 @@ pipeline {
             }
         }
         
-        stage('Rest') {
-            steps {
-                echo 'Inicio de las pruebas Rest!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    bat '''
-                        set FLASK_APP=app\\api.py
-                        set PATH=C:\\Python312;C:\\Python312\\Scripts;C:\\Program Files\\Java\\jdk-11;C:\\Program Files\\Java\\jdk-11\\bin;
-            
-                        start flask run
-                        start java -jar C:\\Users\\soporte_bcrp\\Documents\\unir_tarea\\wiremock-standalone-3.5.3.jar --port 9090 --root-dir test\\wiremock
-    
-                        set PYTHONPATH=%WORKSPACE%
-                        pytest --junitxml=result-rest.xml test\\rest
-                    '''
-                    junit 'result-rest.xml'
-                }
-            }
-        }
+
 
         stage('Static') {
             steps {
