@@ -83,9 +83,9 @@ pipeline {
                     set FLASK_APP=app\\api.py
                     set PATH=C:\\Python312;C:\\Python312\\Scripts;
                     start /B cmd /c flask run
-                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan02.jmx -f -l TestPlan02.jtl
+                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
                 '''
-                perfReport sourceDataFiles: 'TestPlan02.jtl'
+                perfReport sourceDataFiles: 'TestPlan01.jtl'
             }
         }
         
