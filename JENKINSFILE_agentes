@@ -87,7 +87,7 @@ pipeline {
             }
         }
 
-        stage('Static & Security') {
+        stage('Rest & Performance') {
             parallel {
                 stage('Rest') {
                     agent {
