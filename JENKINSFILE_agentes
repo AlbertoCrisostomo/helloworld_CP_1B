@@ -66,6 +66,15 @@ pipeline {
             }
         }
 
+        stage('Security') {
+            steps {
+                echo 'Inicio de las pruebas Security!!!'
+                bat '''
+                    bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                '''
+                recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
+            }
+        }
            
         stage('Performance') {
             steps {
@@ -74,9 +83,9 @@ pipeline {
                     set FLASK_APP=app\\api.py
                     set PATH=C:\\Python312;C:\\Python312\\Scripts;
                     start /B cmd /c flask run
-                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\flask.jmx -f -l flask.jtl
+                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
                 '''
-                perfReport sourceDataFiles: 'flask.jtl'
+                perfReport sourceDataFiles: 'TestPlan01.jtl'
             }
         }
         
