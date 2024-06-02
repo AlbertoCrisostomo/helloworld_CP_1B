@@ -116,6 +116,8 @@ pipeline {
                         label 'build'
                     }
                     steps {
+                        unstash 'd_app'
+                        unstash 'd_test'
                         echo 'Inicio de las pruebas Security!!!'
                         bat '''
                             bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
