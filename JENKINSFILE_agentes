@@ -5,9 +5,9 @@ pipeline {
         stage('Get Code') {
             agent any
             steps {
+                echo 'Inicio de la clonación del código fuente!!!'
                 bat 'whoami'
                 bat 'hostname'
-                echo 'Inicio de la clonación del código fuente!!!'
                 git 'https://github.com/AlbertoCrisostomo/helloworld_CP_1B.git'
 
                 bat 'set PYTHONPATH=%WORKSPACE%'
@@ -24,6 +24,8 @@ pipeline {
                 stage('Coverage') {
                     steps {
                         echo 'Inicio de las pruebas Coverage!!!'
+                        bat 'whoami'
+                        bat 'hostname'
                         unstash 'd_app'
                         unstash 'd_test'
                         bat '''
@@ -39,7 +41,9 @@ pipeline {
 
                 stage('Unit') {
                     steps {
-                        echo 'Inicio de las pruebas Unit!!!'             
+                        echo 'Inicio de las pruebas Unit!!!'  
+                        bat 'whoami'
+                        bat 'hostname'
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                             bat '''
                                 set PATH=C:\\Python312;C:\\Python312\\Scripts;
@@ -63,6 +67,8 @@ pipeline {
                         unstash 'd_app'
                         unstash 'd_test'
                         echo 'Inicio de las pruebas Static!!!'
+                        bat 'whoami'
+                        bat 'hostname'
                         bat '''
                             flake8 --exit-zero --format=pylint app >flake8.out
                         '''
@@ -78,6 +84,8 @@ pipeline {
                         unstash 'd_app'
                         unstash 'd_test'
                         echo 'Inicio de las pruebas Security!!!'
+                        bat 'whoami'
+                        bat 'hostname'
                         bat '''
                             bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                         '''
@@ -95,6 +103,8 @@ pipeline {
                     }
                     steps {
                         echo 'Inicio de las pruebas Rest!!!'
+                        bat 'whoami'
+                        bat 'hostname'
                         unstash 'd_app'
                         unstash 'd_test'
                         catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
@@ -119,6 +129,8 @@ pipeline {
                     }
                     steps {
                         echo 'Inicio de las pruebas Performance!!!'
+                        bat 'whoami'
+                        bat 'hostname'
                         unstash 'd_app'
                         unstash 'd_test'
                         bat '''
