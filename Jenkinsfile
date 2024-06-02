@@ -5,7 +5,7 @@ pipeline {
         stage('Get Code') {
             steps {
                 echo 'Inicio de la clonación del código fuente!!!'
-                git 'https://github.com/AlbertoCrisostomo/helloworld_CP_1B.git'
+                git branch: 'feature_fix_coverage', url: 'https://github.com/AlbertoCrisostomo/helloworld_CP_1B.git'
             }
         }
 
