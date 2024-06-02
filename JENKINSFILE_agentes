@@ -18,7 +18,7 @@ pipeline {
 
         stage('Test Code') {
             parallel {
-                stages('TC_1') {
+                stages {
                     stage('Coverage') {
                         agent {
                             label 'test_unit'
@@ -56,7 +56,7 @@ pipeline {
                     }
                 }
 
-                stages('TC_2') {
+                stages {
                     stage('Rest') {
                         agent {
                             label 'test_rest'
