@@ -53,47 +53,41 @@ pipeline {
             }
         }
 
-        stage('Rest & Performance') {
-            agent {
-                label 'test_rest'
-            }
-            stages {
-                stage('Rest') {
+
+
+        stage('Static & Security') {
+            parallel {
+                stage('Static') {
+                    agent {
+                        label 'build'
+                    }
                     steps {
-                        echo 'Inicio de las pruebas Rest!!!'
                         unstash 'd_app'
                         unstash 'd_test'
-                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                            bat '''
-                                set FLASK_APP=app\\api.py
-                                set PATH=C:\\Python312;C:\\Python312\\Scripts;C:\\Program Files\\Java\\jdk-11;C:\\Program Files\\Java\\jdk-11\\bin;
-                    
-                                start flask run
-                                start java -jar C:\\Users\\soporte_bcrp\\Documents\\unir_tarea\\wiremock-standalone-3.5.3.jar --port 9090 --root-dir test\\wiremock
-            
-                                set PYTHONPATH=%WORKSPACE%
-                                pytest --junitxml=result-rest.xml test\\rest
-                            '''
-                            junit 'result-rest.xml'
-                        }
+                        echo 'Inicio de las pruebas Static!!!'
+                        bat '''
+                            flake8 --exit-zero --format=pylint app >flake8.out
+                        '''
+                        recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]]
                     }
                 }
-
-                stage('Performance') {
+        
+                stage('Security') {
+                    agent {
+                        label 'build'
+                    }
                     steps {
-                        echo 'Inicio de las pruebas Performance!!!'
+                        unstash 'd_app'
+                        unstash 'd_test'
+                        echo 'Inicio de las pruebas Security!!!'
                         bat '''
-                            set FLASK_APP=app\\api.py
-                            set PATH=C:\\Python312;C:\\Python312\\Scripts;
-                            start flask run
-                            C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
+                            bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                         '''
-                        perfReport sourceDataFiles: 'TestPlan01.jtl'
+                        recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
                     }
                 }
             }
         }
 
-        
     }
 }
