@@ -3,60 +3,109 @@ pipeline {
 
     stages {
         stage('Get Code') {
+            agent any
             steps {
+                bat 'whoami'
+                bat 'hostname'
                 echo 'Inicio de la clonación del código fuente!!!'
                 git 'https://github.com/AlbertoCrisostomo/helloworld_CP_1B.git'
+
+                bat 'set PYTHONPATH=%WORKSPACE%'
+                stash includes: 'app/**', name: 'd_app'
+                stash includes: 'test/**', name: 'd_test'
             }
         }
 
-        stage('Coverage') {
-            steps {
-                echo 'Inicio de las pruebas Coverage!!!'
-                bat '''
-                    set PYTHONPATH=%WORKSPACE%
-                    coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit.xml test\\unit
-                    coverage xml
-                '''
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    cobertura coberturaReportFile: 'coverage.xml', onlyStable: false, failUnstable: false, conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95'
+        stage('Test Code') {
+            parallel {
+                state('TC_1') {
+                    stage('Coverage') {
+                        agent {
+                            label 'test_unit'
+                        }
+                        steps {
+                            echo 'Inicio de las pruebas Coverage!!!'
+                            unstash 'd_app'
+                            unstash 'd_test'
+                            bat '''
+                                set PYTHONPATH=%WORKSPACE%
+                                coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest --junitxml=result-unit.xml test\\unit
+                                coverage xml
+                            '''
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                cobertura coberturaReportFile: 'coverage.xml', onlyStable: false, failUnstable: false, conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95'
+                            }
+                        }
+                    }
+
+                    stage('Unit') {
+                        agent {
+                            label 'test_unit'
+                        }
+                        steps {
+                            echo 'Inicio de las pruebas Unit!!!'             
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                bat '''
+                                    set PATH=C:\\Python312;C:\\Python312\\Scripts;
+                                    set PYTHONPATH=%WORKSPACE%
+                                    pytest --junitxml=result-unit.xml test\\unit
+                                '''
+                                junit 'result-unit.xml'
+                            }
+                        }
+                    }
                 }
+
+                state('TC_2') {
+                    stage('Rest') {
+                        agent {
+                            label 'test_rest'
+                        }
+                        steps {
+                            echo 'Inicio de las pruebas Rest!!!'
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                bat '''
+                                    set FLASK_APP=app\\api.py
+                                    set PATH=C:\\Python312;C:\\Python312\\Scripts;C:\\Program Files\\Java\\jdk-11;C:\\Program Files\\Java\\jdk-11\\bin;
+                        
+                                    start flask run
+                                    start java -jar C:\\Users\\soporte_bcrp\\Documents\\unir_tarea\\wiremock-standalone-3.5.3.jar --port 9090 --root-dir test\\wiremock
+                
+                                    set PYTHONPATH=%WORKSPACE%
+                                    pytest --junitxml=result-rest.xml test\\rest
+                                '''
+                                junit 'result-rest.xml'
+                            }
+                        }
+                    }
+
+                    stage('Performance') {
+                        agent {
+                            label 'test_rest'
+                        }
+                        steps {
+                            echo 'Inicio de las pruebas Performance!!!'
+                            bat '''
+                                set FLASK_APP=app\\api.py
+                                set PATH=C:\\Python312;C:\\Python312\\Scripts;
+                                start flask run
+                                C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
+                            '''
+                            perfReport sourceDataFiles: 'TestPlan01.jtl'
+                        }
+                    }
+                }
+
             }
         }
+
         
-        stage('Unit') {
-            steps {
-                echo 'Inicio de las pruebas Unit!!!'             
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    bat '''
-                        set PATH=C:\\Python312;C:\\Python312\\Scripts;
-                        set PYTHONPATH=%WORKSPACE%
-                        pytest --junitxml=result-unit.xml test\\unit
-                    '''
-                    junit 'result-unit.xml'
-                }
-            }
-        }
         
-        stage('Rest') {
-            steps {
-                echo 'Inicio de las pruebas Rest!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    bat '''
-                        set FLASK_APP=app\\api.py
-                        set PATH=C:\\Python312;C:\\Python312\\Scripts;C:\\Program Files\\Java\\jdk-11;C:\\Program Files\\Java\\jdk-11\\bin;
-            
-                        start flask run
-                        start java -jar C:\\Users\\soporte_bcrp\\Documents\\unir_tarea\\wiremock-standalone-3.5.3.jar --port 9090 --root-dir test\\wiremock
-    
-                        set PYTHONPATH=%WORKSPACE%
-                        pytest --junitxml=result-rest.xml test\\rest
-                    '''
-                    junit 'result-rest.xml'
-                }
-            }
-        }
 
         stage('Static') {
+            agent {
+                label 'build'
+            }
             steps {
                 echo 'Inicio de las pruebas Static!!!'
                 bat '''
@@ -67,6 +116,9 @@ pipeline {
         }
 
         stage('Security') {
+            agent {
+                label 'build'
+            }
             steps {
                 echo 'Inicio de las pruebas Security!!!'
                 bat '''
@@ -76,18 +128,6 @@ pipeline {
             }
         }
            
-        stage('Performance') {
-            steps {
-                echo 'Inicio de las pruebas Performance!!!'
-                bat '''
-                    set FLASK_APP=app\\api.py
-                    set PATH=C:\\Python312;C:\\Python312\\Scripts;
-                    start flask run
-                    C:\\Users\\soporte_bcrp\\Documents\\apache-jmeter-5.6.3\\bin\\jmeter -n -t test\\jmeter\\TestPlan01.jmx -f -l TestPlan01.jtl
-                '''
-                perfReport sourceDataFiles: 'TestPlan01.jtl'
-            }
-        }
         
     }
 }
